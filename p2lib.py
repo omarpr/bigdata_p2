@@ -56,3 +56,9 @@ def resultToFiles(drd, file_dir, data_name, time_freq):
         f = open(f_index, 'w+')
         f.write(json.dumps(ws_index))
         f.close()
+
+def reflect(tuple, up_hours):
+    out = []
+    for i in range(0, up_hours):
+        out.append(((tuple[0][0], tuple[0][1] + timedelta(hours=i)), tuple[1]))
+    return out

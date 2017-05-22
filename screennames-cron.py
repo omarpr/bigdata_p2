@@ -15,12 +15,12 @@ a = sc.textFile('/home/omar/p2/screen_names.txt-*/part-*')
 b = a.map(lambda x: eval(x))
 c = b.map(lambda x: ((x[0][0].upper(), (datetime.strptime(x[0][1].split('+')[0], '%Y-%m-%dT%H:%M:%S') - timedelta(seconds=time.timezone))), x[1]))
 
-map_12h = c.map(lambda x: ((x[0][0], x[0][1] - timedelta(minutes=x[0][1].minute) - timedelta(hours=12)), x[1]))
+map_1h = c.map(lambda x: ((x[0][0], x[0][1] - timedelta(minutes=x[0][1].minute)), x[1]))
+map_reflect = map_1h.map(lambda x: reflect(x, 12)) # Reflect this occurance in the next 12 hours, so we can have the occurance on each range file (1-13, 2-14, 3-15, etc)
+map_flat = map_reflect.flatMap(lambda x: x)
 
-e4c = map_12h
+e4c = map_flat
 e4c = e4c.filter(lambda x: (x[0][1] + timedelta(seconds=time.timezone)) >= datetime.utcnow() - timedelta(hours=24))
 e4c_reduce = e4c.reduceByKey(lambda x, y: x+y)
-
-print("Count: " + str(e4c.count()))
 
 resultToFiles(e4c_reduce, main_dir, 'screen_names', '12h')
