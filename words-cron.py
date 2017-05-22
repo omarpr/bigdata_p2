@@ -34,6 +34,6 @@ e5 = e5.filter(lambda x: (x[0][1] + timedelta(seconds=time.timezone)) >= datetim
 e5_filter = e5.filter(lambda x: x[0][0] in words_selection)
 e5_reduce = e5_filter.reduceByKey(lambda x, y: x+y)
 
-resultToFiles(e4a_reduce, main_dir, 'hashtags', '1h', 10)
-resultToFiles(e4b_reduce, main_dir, 'keywords', '1h', 10)
+resultToFiles(e4a_reduce, main_dir, 'hashtags', '1h', 11)
+resultToFiles(e4b_reduce, main_dir, 'keywords', '1h', 11)
 resultToFiles(e5_reduce, main_dir, 'words_selection', '1h', len(words_selection))
