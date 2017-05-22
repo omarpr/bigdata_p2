@@ -1,6 +1,8 @@
 # Big Data Analytics (CIIC 8995) Project II
 Project II of Big Data Analytics (CIIC 8995) given by Dr. Manuel Rodríguez in the University of Puerto Rico, Mayagüez Campus.
 
+An example of this is available at http://kvm_33.uprm.edu/p2/.
+
 ## twitter_stream.py
 Python Kafka Producer that receives a sample stream of tweets from Twitter, extract only the ones from about *trump* and send it to the Kafka Server. A credential file is required as *twitter_credentials.json*. A example of that file is included as *twitter_credentials.sample.json*.
 
