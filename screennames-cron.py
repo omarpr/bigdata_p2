@@ -18,7 +18,7 @@ c = b.map(lambda x: ((x[0][0].upper(), (datetime.strptime(x[0][1].split('+')[0],
 map_12h = c.map(lambda x: ((x[0][0], x[0][1] - timedelta(minutes=x[0][1].minute) - timedelta(hours=12)), x[1]))
 
 e4c = map_12h
-e4c = e4c.filter(lambda x: (x[0][1] + timedelta(seconds=time.timezone)) >= datetime.utcnow() - timedelta(hours=12))
+e4c = e4c.filter(lambda x: (x[0][1] + timedelta(seconds=time.timezone)) >= datetime.utcnow() - timedelta(hours=24))
 e4c_reduce = e4c.reduceByKey(lambda x, y: x+y)
 
 print("Count: " + str(e4c.count()))
