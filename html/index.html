@@ -1,0 +1,162 @@
+<html>
+  <head>
+    <title>Big Data Project II: Trump Tweets Analytics</title>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+      indexes = ['hashtags', 'keywords', 'screen_names', 'words_selection'];
+      index = {'hashtags' : null, 'keywords' : null, 'screen_names' : null, 'words_selection' : null};
+      charts = [];
+
+      $(document).ready(function() {
+        google.charts.load('current', {'packages':['corechart', 'table']});
+        google.charts.setOnLoadCallback(drawCharts);
+      });
+      function drawCharts() {
+        loadIndexes();
+      }
+      function loadIndexes() {
+        for (i = 0; i < indexes.length; i++) {
+          loadIndex(i)
+        }
+      }
+      function loadIndex(num) {
+        $.getJSON('files/' + indexes[i] + '-index.json', function(data) {
+          index[indexes[num]] = data;
+
+          var last = 0;
+          jQuery.each(index[indexes[num]], function() {
+            last = this;
+          });
+
+          if (!UrlExists('files/' + last.file)) {
+            console.log('files/' + last.file + ' not found!');
+            delete index[indexes[num]][last.ts];
+          }
+
+          receivedIndex(indexes[num]);
+        });
+      }
+      function receivedIndex(index_name) {
+        var func_name = 'loadDates_' + index_name;
+
+        if (typeof window[func_name] == 'function') {
+          eval(func_name + '()');
+        } else {
+          console.log(func_name + ' doesnt exists');
+        }
+      }
+      function loadDatesSingle(index_name, cb_name) {
+        var cb = $('select[name=' + cb_name + ']');
+        var max = 0;
+
+        cb.empty();
+        jQuery.each(index[index_name], function() {
+          if (this.ts >= max) max = this.ts
+          cb.append($('<option>', {value: this.ts, text: this.date_range}));
+        });
+
+        cb.find('option[value=' + max + ']').prop('selected', true);
+      }
+      function loadSimpleGraph(index_name, chart_name, cb_name, header, chart_type, options) {
+        var opt = $('select[name=' + cb_name + '] option:selected');
+        var i = index[index_name][opt.val()];
+
+        $.getJSON('files/' + i['file'], function(data) {
+          var out = [header];
+          $.merge(out, data);
+          if (chart_type == 'bar') {
+            for (var i = 1; i < out.length; i++) {
+              out[i][2] = getRandomColor();
+            }
+          }
+
+          // Top 10
+          out.splice(-(out.length - 11), (out.length - 11));
+
+          if (!charts[index_name]) {
+            if (chart_type == 'pie') {
+              charts[index_name] = new google.visualization.PieChart(document.getElementById(chart_name));
+            } else if (chart_type == 'bar') {
+              charts[index_name] = new google.visualization.BarChart(document.getElementById(chart_name));
+            } else {
+              return
+            }
+          } else {
+            charts[index_name].clearChart();
+          }
+
+          var data = google.visualization.arrayToDataTable(out);
+
+          charts[index_name].draw(data, options);
+        });
+      }
+      function loadDates_hashtags() {
+        loadDatesSingle('hashtags', 'ex4a_dates');
+        loadGraph_hashtags();
+
+        $('select[name=ex4a_dates]').change(function() { loadGraph_hashtags() });
+      }
+      function loadGraph_hashtags() {
+        loadSimpleGraph('hashtags', 'ex4a', 'ex4a_dates', ['Hashtag', 'Count'], 'pie', {title: 'Top 10 Trending Hashtags (Ex4-A)'});
+      }
+      function loadDates_keywords() {
+        loadDatesSingle('keywords', 'ex4b_dates');
+        loadGraph_keywords();
+
+        $('select[name=ex4b_dates]').change(function() { loadGraph_keywords() });
+      }
+      function loadGraph_keywords() {
+        loadSimpleGraph('keywords', 'ex4b', 'ex4b_dates', ['Keyword', 'Count', {role: 'style'}], 'bar', {title: 'Top 10 Trending Keywords (Ex4-B)', bar: {groupWidth: '95%;'}, legend: {position: 'none'}});
+      }
+      function loadDates_screen_names() {
+        loadDatesSingle('screen_names', 'ex4c_dates');
+        loadGraph_screen_names();
+
+        $('select[name=ex4c_dates]').change(function() { loadGraph_screen_names() });
+      }
+      function loadGraph_screen_names() {
+        loadSimpleGraph('screen_names', 'ex4c', 'ex4c_dates', ['Screen Name', 'Count'], 'pie', {title: 'Top 10 Participants (Ex4-C)', is3D: true});
+      }
+      function loadDates_screen_namess() {
+        loadDatesSingle('words_selection', 'ex5_dates');
+        loadGraph_screen_names();
+
+        $('select[name=ex5_dates]').change(function() { loadGraph_screen_names() });
+      }
+      /* From: http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript */
+      function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+      /* http://stackoverflow.com/questions/3646914/how-do-i-check-if-file-exists-in-jquery-or-javascript */
+      function UrlExists(url) {
+        var http = new XMLHttpRequest();
+        http.open('HEAD', url, false);
+        http.send();
+        return http.status!=404;
+      }
+    </script>
+  </head>
+  <body>
+    <select name="ex4a_dates" style="width: 900px;"></select>
+    <div id="ex4a" style="width: 900px; height: 400px;"></div>
+    <select name="ex4b_dates" style="width: 900px;"></select>
+    <div id="ex4b" style="width: 900px; height: 400px;"></div>
+    <select name="ex4c_dates" style="width: 900px;"></select>
+    <div id="ex4c" style="width: 900px; height: 400px;"></div>
+
+    <b>From</b>:&nbsp;<select name="ex5_from_date" style="width: 425px;"></select>
+    &nbsp;<b>To</b>:&nbsp;<select name="ex5_to_date" style="width: 425px;"></select>
+
+    <div id="ex4b" style="width: 900px; height: 500px;"></div>
+    <!--<b>500 Unique screen names that tweeted "Trump" (Ex3)</b>-->
+    <div id="ex4c" style="width: 900px; height: 500px;"></div>
+    <div id="ex5" style="width: 100%; height: 500px;"></div>
+  </body>
+</html>
