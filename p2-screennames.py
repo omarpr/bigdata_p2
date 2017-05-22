@@ -8,7 +8,7 @@ from datetime import timedelta
 from datetime import timezone
 import json
 
-sc = SparkContext(appName="KafkaSparkStream-p2-words")
+sc = SparkContext(appName="KafkaSparkStream-p2-screennames")
 sc.setLogLevel("WARN")
 
 ssc = StreamingContext(sc, 60)
