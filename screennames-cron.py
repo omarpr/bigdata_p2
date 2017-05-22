@@ -23,4 +23,4 @@ e4c = map_flat
 e4c = e4c.filter(lambda x: (x[0][1] + timedelta(seconds=time.timezone)) >= datetime.utcnow() - timedelta(hours=24))
 e4c_reduce = e4c.reduceByKey(lambda x, y: x+y)
 
-resultToFiles(e4c_reduce, main_dir, 'screen_names', '12h')
+resultToFiles(e4c_reduce, main_dir, 'screen_names', '12h', 10)

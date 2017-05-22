@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 import calendar, time, os, json
 
-def resultToFiles(drd, file_dir, data_name, time_freq):
+def resultToFiles(drd, file_dir, data_name, time_freq, top_count):
     out = {}
 
     f_index = file_dir + data_name + '-index.json'
@@ -21,7 +21,12 @@ def resultToFiles(drd, file_dir, data_name, time_freq):
         with open(f_index, 'r') as f:
              ws_index = json.load(f)
 
-    for x in drd.collect():
+    if (top_count != False):
+        final_list = drd.sortBy(lambda x: -x[1]).collect()
+    else:
+        final_list = drd.collect()
+
+    for x in final_list:
         ts = int(time.mktime(x[0][1].timetuple()))
         if (ts not in out):
             out[ts] = []
@@ -33,8 +38,13 @@ def resultToFiles(drd, file_dir, data_name, time_freq):
         if (os.path.isfile(f)):
             os.remove(f)
 
+        if (top_count != False):
+            pick = out[x][:top_count]
+        else:
+            pick = out[x]
+
         target_file = os.open(f, os.O_RDWR|os.O_CREAT)
-        os.write(target_file, str.encode(json.dumps(out[x])))
+        os.write(target_file, str.encode(json.dumps(pick)))
         os.close(target_file)
 
         if (x not in ws_index):
@@ -47,7 +57,6 @@ def resultToFiles(drd, file_dir, data_name, time_freq):
             drange = drange_low + ' - ' + drange_top
 
             ws_index[x] = {'ts': x, 'file': data_name + '.txt-' + str(x), 'date_range': drange, 'drange_low': drange_low, 'drange_top': drange_top}
-
 
     if (f_index_change):
         if (os.path.isfile(f_index)):
