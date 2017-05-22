@@ -1,10 +1,13 @@
 # pyspark --master yarn --deploy-mode client --conf='spark.executorEnv.PYTHONHASHSEED=223'
 # /opt/spark/bin/spark-submit screennames-cron.py
+# /opt/spark/bin/spark-submit --master yarn  --deploy-mode client --py-files /home/omar.soto2/p2/p2lib.py --conf='spark.executorEnv.PYTHONHASHSEED=223' /home/omar.soto2/p2/screennames-cron.py
 
 from pyspark import SparkContext
 from datetime import datetime, timezone, timedelta
 import calendar, time, os, json
 from p2lib import *
+
+SparkContext.setSystemProperty('spark.executor.memory', '3G')
 
 sc = SparkContext(appName="p2-screennames-cron")
 sc.setLogLevel("WARN")
