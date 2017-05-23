@@ -50,14 +50,21 @@
       function loadDatesSingle(index_name, cb_name) {
         var cb = $('select[name=' + cb_name + ']');
         var max = 0;
+        var find_max = true;
 
         if (index_name == 'screen_names') {
+          find_max = false;
+
           var to_remove = [];
           var allowed_elements = [];
           var ae = 0;
 
+          var nowd = Date.now();
+          var max_date = nowd - (nowd % (60 * 60 * 1000)) - (11 * 60 * 60 * 1000);
+          var max_date_ts = max_date / 1000;
+
           jQuery.each(index[index_name], function() {
-            if (this.ts >= max) max = this.ts
+            if (this.ts >= max && this.ts < max_date_ts) max = this.ts
             allowed_elements.push(ae++);
           });
 
@@ -70,7 +77,7 @@
 
         cb.empty();
         jQuery.each(index[index_name], function() {
-          if (this.ts >= max) max = this.ts
+          if (find_max && this.ts >= max) max = this.ts
           cb.append($('<option>', {value: this.ts, text: this.date_range}));
         });
 
